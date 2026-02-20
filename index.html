@@ -215,15 +215,17 @@
             padding: 2rem 1.8rem;
             border-right: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
-            transition: background 0.18s;
+            border-top: 2px solid transparent;
+            transition: background 0.18s, border-top-color 0.18s;
             cursor: default;
             user-select: none;
         }
         .feature-card:nth-child(3n) { border-right: none; }
         .feature-card:nth-child(n+4) { border-bottom: none; }
-        .feature-card:hover { background: var(--card-hover); }
+        .feature-card:hover { background: var(--card-hover); border-top-color: var(--geko-dim); }
+        .feature-card:hover .feature-icon { transform: scale(1.18) rotate(-5deg); }
+        .feature-icon { display: block; font-size: 1.4rem; margin-bottom: 0.9rem; transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 
-        .feature-icon { font-size: 1.4rem; margin-bottom: 0.9rem; display: block; }
         .feature-title {
             font-size: 0.84rem;
             font-weight: 700;
@@ -271,13 +273,14 @@
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
+            gap: 0.4rem;
             margin-bottom: 0.75rem;
         }
 
         .tool-emoji {
             font-size: 1.35rem;
             line-height: 1;
-            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         .tool-card:hover .tool-emoji { transform: scale(1.16) rotate(-5deg); }
 
@@ -293,6 +296,27 @@
             border-radius: 4px;
             white-space: nowrap;
             margin-top: 1px;
+        }
+
+        .wip-badge {
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--muted2);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-hi);
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .tool-head-right {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         .tool-name {
@@ -493,6 +517,28 @@
     }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
 
     cards.forEach(card => toolObs.observe(card));
+
+    // WIP badges
+    const NO_WIP = ['iggy', 'aga'];
+    document.querySelectorAll('.tool-card').forEach(card => {
+        const name = card.querySelector('.tool-name').textContent.trim();
+        const head = card.querySelector('.tool-head');
+        const badge = head.querySelector('.tool-badge');
+
+        // Wrap badge in right-side container
+        const right = document.createElement('div');
+        right.className = 'tool-head-right';
+        right.appendChild(badge);
+
+        if (!NO_WIP.includes(name)) {
+            const wip = document.createElement('span');
+            wip.className = 'wip-badge';
+            wip.textContent = 'WIP';
+            right.appendChild(wip);
+        }
+
+        head.appendChild(right);
+    });
 </script>
 </body>
 </html>
