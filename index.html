@@ -1,505 +1,498 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Geko Language</title>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geko Language</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
-        <link
-            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap"
-            rel="stylesheet"
-        />
+        :root {
+            --geko:        #009461;
+            --geko-bright: #01c968;
+            --geko-dim:    #004d35;
+            --bg:          #0c0e11;
+            --card:        #111419;
+            --card-hover:  #161b23;
+            --border:      #1c2230;
+            --border-hi:   #2a3447;
+            --text:        #d8e0ec;
+            --muted:       #64748b;
+            --muted2:      #3d4f66;
+        }
 
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+        *, *::before, *::after {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+            font-family: "Space Mono", monospace;
+        }
 
-            :root {
-                --geko: #009461;
-                --geko-bright: #01c968;
-                --geko-dim: #005e3f;
-                --bg: #0f1115;
-                --card: #161a21;
-                --card-hover: #1d222b;
-                --border: #242a33;
-                --text: #e6e6e6;
-                --muted: #8b949e;
-            }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: "Space Mono", monospace;
-            }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.024) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.024) 1px, transparent 1px);
+            background-size: 48px 48px;
+            z-index: -1;
+            pointer-events: none;
+        }
 
-            .tool-card, .feature-card * {
-                cursor: default;
-                user-select: none;
-            }
+        /* ─── Animations ─── */
 
-            body {
-                margin: 0;
-                background: var(--bg);
-                color: var(--text);
-                line-height: 1.6;
-                overflow-x: hidden;
-            }
-
-            body::before {
-                content: "";
-                position: fixed;
-                inset: 0;
-                background-image:
-                    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-                background-size: 40px 40px;
-                z-index: -2;
-            }
-
-            /* ─── Keyframes ─── */
-
-            @keyframes fadeUp {
-                from { opacity: 0; transform: translateY(30px); }
-                to   { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to   { opacity: 1; }
-            }
-            @keyframes rotateCompass {
-                from { transform: rotate(0deg); }
-                to   { transform: rotate(360deg); }
-            }
-            @keyframes float {
-                0%,100% { transform: translateY(0px); }
-                50%      { transform: translateY(-8px); }
-            }
-
-            /* ── Card entry animation: 3D rise from below ── */
-
-            @keyframes card3dRise {
-                0% {
-                    opacity: 0;
-                    transform: perspective(700px) rotateX(40deg) translateY(48px) scale(0.92);
-                    filter: blur(4px);
-                }
-                60% {
-                    opacity: 1;
-                    filter: blur(0);
-                }
-                80% {
-                    transform: perspective(700px) rotateX(-4deg) translateY(-6px) scale(1.01);
-                }
-                100% {
-                    opacity: 1;
-                    transform: perspective(700px) rotateX(0deg) translateY(0) scale(1);
-                    filter: blur(0);
-                }
-            }
-
-            /* ─── Scroll reveal base ─── */
-
-            .tool-card {
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes float {
+            0%,100% { transform: translateY(0); }
+            50%     { transform: translateY(-6px); }
+        }
+        @keyframes card3dRise {
+            0% {
                 opacity: 0;
+                transform: perspective(900px) rotateX(32deg) translateY(36px) scale(0.95);
+                filter: blur(3px);
             }
-            .tool-card.visible {
-                animation: card3dRise 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+            55% { opacity: 1; filter: blur(0); }
+            78% { transform: perspective(900px) rotateX(-2.5deg) translateY(-3px) scale(1.004); }
+            100%{
+                opacity: 1;
+                transform: perspective(900px) rotateX(0) translateY(0) scale(1);
+                filter: blur(0);
             }
+        }
 
-            /* Feature cards – keep simple reveal */
-            .reveal {
-                opacity: 0;
-                transform: translateY(28px);
-                transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1), transform 0.65s cubic-bezier(0.22,1,0.36,1);
+        /* ─── Navbar ─── */
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 3rem;
+            height: 54px;
+            background: rgba(10,12,15,0.9);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: fadeIn 0.5s ease both;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+        }
+        .nav-brand-name {
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--geko-bright);
+        }
+
+        nav { display: flex; gap: 0.15rem; }
+        nav a {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: var(--muted);
+            text-decoration: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            transition: color 0.15s, background 0.15s;
+        }
+        nav a:hover { color: var(--text); background: var(--border); }
+
+        /* ─── Hero ─── */
+
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 7rem 2rem 5.5rem;
+            text-align: center;
+        }
+
+        .hero-logo {
+            margin-bottom: 2.2rem;
+            animation: float 5s ease-in-out infinite, fadeUp 0.65s 0.05s both;
+        }
+
+        .hero-eyebrow {
+            font-size: 0.68rem;
+            letter-spacing: 3.5px;
+            color: var(--geko);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            animation: fadeUp 0.65s 0.15s both;
+        }
+
+        .title {
+            font-size: 4.2rem;
+            font-weight: 800;
+            letter-spacing: 8px;
+            color: var(--text);
+            line-height: 1;
+            animation: fadeUp 0.65s 0.22s both;
+        }
+        .title-accent { color: var(--geko-bright); }
+
+        .slogan {
+            font-size: 0.88rem;
+            color: var(--muted);
+            margin-top: 1.1rem;
+            animation: fadeUp 0.65s 0.3s both;
+        }
+
+        .hero-pills {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 2.2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeUp 0.65s 0.4s both;
+        }
+        .pill {
+            font-size: 0.68rem;
+            letter-spacing: 0.8px;
+            padding: 0.28rem 0.8rem;
+            border-radius: 99px;
+            border: 1px solid var(--border-hi);
+            color: var(--muted);
+            background: transparent;
+        }
+
+        /* ─── Section ─── */
+
+        .section {
+            padding: 4.5rem 2rem;
+            max-width: 1140px;
+            margin: auto;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .section-header-line { flex: 1; height: 1px; background: var(--border); }
+        .section-header-text {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted2);
+            white-space: nowrap;
+        }
+
+        /* ─── Feature grid ─── */
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .feature-card {
+            background: var(--card);
+            padding: 2rem 1.8rem;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.18s;
+            cursor: default;
+            user-select: none;
+        }
+        .feature-card:nth-child(3n) { border-right: none; }
+        .feature-card:nth-child(n+4) { border-bottom: none; }
+        .feature-card:hover { background: var(--card-hover); }
+
+        .feature-icon { font-size: 1.4rem; margin-bottom: 0.9rem; display: block; }
+        .feature-title {
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 0.3px;
+            margin-bottom: 0.45rem;
+        }
+        .feature-desc { color: var(--muted); font-size: 0.77rem; line-height: 1.65; }
+
+        /* ─── Tools grid ─── */
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .tool-card { opacity: 0; cursor: default; user-select: none; }
+        .tool-card.visible {
+            animation: card3dRise 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .tool-inner {
+            background: var(--card);
+            padding: 1.5rem 1.35rem 1.4rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            border-top: 2px solid transparent;
+            transition: background 0.18s, border-top-color 0.18s;
+        }
+        /* remove right border on last col, bottom on last row */
+        .tool-card:nth-child(4n) .tool-inner { border-right: none; }
+
+        .tool-card:hover .tool-inner {
+            background: var(--card-hover);
+            border-top-color: var(--geko-dim);
+        }
+
+        .tool-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .tool-emoji {
+            font-size: 1.35rem;
+            line-height: 1;
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .tool-card:hover .tool-emoji { transform: scale(1.16) rotate(-5deg); }
+
+        .tool-badge {
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--geko);
+            background: rgba(0,148,97,0.08);
+            border: 1px solid rgba(0,148,97,0.18);
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            margin-top: 1px;
+        }
+
+        .tool-name {
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            color: var(--text);
+            margin-bottom: 0.35rem;
+        }
+
+        .tool-desc {
+            font-size: 0.73rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ─── Reveal ─── */
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1);
+        }
+        .reveal.visible { opacity: 1; transform: none; }
+
+        /* ─── Footer ─── */
+
+        footer {
+            text-align: center;
+            padding: 2.5rem;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--muted2);
+            border-top: 1px solid var(--border);
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 960px) {
+            .features-grid { grid-template-columns: repeat(2,1fr); }
+            .tools-grid    { grid-template-columns: repeat(2,1fr); }
+            .tool-card:nth-child(4n) .tool-inner { border-right: 1px solid var(--border); }
+            .tool-card:nth-child(2n) .tool-inner { border-right: none; }
+        }
+        @media (max-width: 560px) {
+            .features-grid, .tools-grid { grid-template-columns: 1fr; }
+            .tool-inner, .feature-card { border-right: none !important; }
+            .title { font-size: 2.8rem; }
+            header { padding: 0 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a class="nav-brand" href="#">🦎</a>
+    <nav>
+        <a href="#">News</a>
+        <a href="#">GitHub</a>
+        <a href="#">Docs</a>
+        <a href="#">Discord</a>
+        <a href="#">Telegram</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <div class="hero-logo">
+        <svg width="88" height="110" viewBox="0 0 39 50" fill="none">
+            <path d="M32.3915 16.2552C31.0312 16.7189 27.9857 17.4093 26.6864 16.4606C25.4968 15.5919 26.1698 14.3383 26.7706 13.6836L20.9814 16.666L23.5306 19.1517C27.4284 21.9978 31.754 19.7445 33.4296 18.2621C34.0463 19.1287 37.1671 20.5607 37.2638 19.8128C37.4939 18.0322 36.2256 17.8059 34.7146 17.327C36.1582 16.5453 37.1997 16.1707 37.2845 15.4569C37.498 13.6585 35.0745 15.0921 33.7895 16.0271C34.3378 14.9704 34.2306 12.4746 33.2243 12.4923C32.1114 12.5118 31.9324 14.8793 32.3915 16.2552Z" fill="#009461"/>
+            <path d="M34.6319 13.3462C34.6458 14.1324 34.0181 14.781 33.2301 14.7949C32.4421 14.8087 31.792 14.1826 31.7782 13.3964C31.7644 12.6102 32.392 11.9616 33.1801 11.9478C33.9681 11.9339 34.6181 12.56 34.6319 13.3462Z" fill="#009461"/>
+            <path d="M38.1252 15.3215C38.139 16.1078 37.5114 16.7563 36.7234 16.7702C35.9354 16.784 35.2853 16.1579 35.2715 15.3717C35.2577 14.5855 35.8853 13.9369 36.6733 13.9231C37.4614 13.9092 38.1114 14.5353 38.1252 15.3215Z" fill="#009461"/>
+            <path d="M38.708 19.2555C38.7218 20.0417 38.0942 20.6903 37.3061 20.7042C36.5181 20.718 35.8681 20.0919 35.8543 19.3057C35.8404 18.5195 36.4681 17.8709 37.2561 17.857C38.0441 17.8432 38.6941 18.4693 38.708 19.2555Z" fill="#009461"/>
+            <path d="M18.426 5.99003C18.1005 7.38987 17.7179 10.4891 18.7917 11.6871C19.7748 12.784 22.0403 13.1054 22.6317 12.4422C23.2231 11.779 19.1573 17.3841 19.1573 17.3841L16.4293 15.096C13.208 11.502 15.0179 6.97292 16.3255 5.1576C15.4016 4.63054 13.665 1.66846 14.3995 1.49758C16.1482 1.09073 16.5 2.33001 17.1275 3.78565C17.761 2.27112 18.0297 1.19739 18.7315 1.04175C20.4995 0.649599 19.3153 3.20428 18.5133 4.57623C19.5099 3.92513 22.004 3.78239 22.087 4.78545C22.1787 5.89473 19.8409 6.30935 18.426 5.99003Z" fill="#009461"/>
+            <path d="M21.0966 3.47016C20.313 3.53496 19.7303 4.22424 19.7953 5.00971C19.8602 5.79519 20.5482 6.37941 21.3318 6.31461C22.1155 6.24981 22.6981 5.56053 22.6331 4.77505C22.5682 3.98958 21.8803 3.40536 21.0966 3.47016Z" fill="#009461"/>
+            <path d="M18.7822 0.191701C17.9985 0.2565 17.4159 0.945782 17.4808 1.73125C17.5458 2.51673 18.2337 3.10095 19.0174 3.03615C19.801 2.97135 20.3837 2.28207 20.3187 1.4966C20.2538 0.711123 19.5658 0.126902 18.7822 0.191701Z" fill="#009461"/>
+            <path d="M14.8097 0.00490944C14.026 0.0697087 13.4434 0.75899 13.5083 1.54446C13.5733 2.32994 14.2612 2.91416 15.0449 2.84936C15.8285 2.78456 16.4112 2.09528 16.3462 1.3098C16.2813 0.524332 15.5933 -0.0598898 14.8097 0.00490944Z" fill="#009461"/>
+            <path d="M19.6972 29.2453C20.2617 27.9236 21.1785 24.9385 20.3299 23.5717C19.5529 22.3202 18.2524 22.8973 17.5544 23.4473L20.9626 17.8981L23.2502 20.6266C25.7959 24.7269 23.2245 28.8713 21.6205 30.431C22.4384 31.111 23.6323 34.3304 22.8793 34.3707C21.0864 34.4666 20.9559 33.1849 20.5917 31.6422C19.7039 33.0232 19.2523 34.0336 18.5341 34.0646C16.7248 34.1427 18.3361 31.8334 19.3649 30.6222C18.2701 31.0897 15.7892 30.7956 15.8824 29.7935C15.9853 28.6852 18.3596 28.6843 19.6972 29.2453Z" fill="#009461"/>
+            <path d="M16.6284 31.2612C17.4113 31.334 18.1051 30.7568 18.1781 29.972C18.251 29.1872 17.6754 28.4921 16.8924 28.4193C16.1095 28.3465 15.4156 28.9238 15.3427 29.7085C15.2698 30.4933 15.8454 31.1885 16.6284 31.2612Z" fill="#009461"/>
+            <path d="M18.3361 34.8928C19.119 34.9656 19.8129 34.3884 19.8858 33.6036C19.9587 32.8188 19.3831 32.1237 18.6001 32.0509C17.8172 31.9782 17.1234 32.5554 17.0504 33.3401C16.9775 34.1249 17.5531 34.8201 18.3361 34.8928Z" fill="#009461"/>
+            <path d="M22.2153 35.769C22.9982 35.8418 23.692 35.2645 23.765 34.4798C23.8379 33.695 23.2623 32.9998 22.4793 32.9271C21.6964 32.8543 21.0025 33.4315 20.9296 34.2163C20.8567 35.0011 21.4323 35.6963 22.2153 35.769Z" fill="#009461"/>
+            <path d="M6.76923 19.9186C8.02793 19.2249 10.9065 18.0145 12.3512 18.7222C13.674 19.3703 13.2298 20.722 12.7523 21.4714L17.9332 17.5258L14.9898 15.5223C10.6557 13.399 6.78891 16.3716 5.39727 18.1234C4.63897 17.3775 1.31642 16.5112 1.35158 17.2645C1.43528 19.058 2.72354 19.0598 4.29491 19.268C3.00957 20.2893 2.04928 20.8397 2.0902 21.5574C2.19331 23.3654 4.33001 21.5315 5.43237 20.3868C5.07661 21.5229 5.61706 23.9619 6.60491 23.7691C7.69736 23.5559 7.46106 21.1935 6.76923 19.9186Z" fill="#009461"/>
+            <path d="M5.06998 23.1735C4.91937 22.4017 5.42437 21.6537 6.19793 21.5028C6.97149 21.3518 7.72068 21.8551 7.87129 22.6268C8.0219 23.3986 7.5169 24.1466 6.74334 24.2976C5.96978 24.4485 5.22059 23.9453 5.06998 23.1735Z" fill="#009461"/>
+            <path d="M1.28592 21.8372C1.13531 21.0654 1.64031 20.3174 2.41388 20.1664C3.18744 20.0154 3.93663 20.5187 4.08724 21.2905C4.23785 22.0623 3.73285 22.8103 2.95929 22.9612C2.18573 23.1122 1.43654 22.6089 1.28592 21.8372Z" fill="#009461"/>
+            <path d="M0.0265681 18.0649C-0.124043 17.2932 0.380958 16.5451 1.15452 16.3942C1.92808 16.2432 2.67727 16.7465 2.82788 17.5182C2.97849 18.29 2.47349 19.038 1.69993 19.189C0.926369 19.34 0.177179 18.8367 0.0265681 18.0649Z" fill="#009461"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M23.6656 7.60008C23.4079 2.73344 30.2896 -1.4067 33.4876 0.600599C36.2856 2.35714 35.0043 10.161 30.1082 11.9541C28.6479 12.381 26.3971 13.1325 25.9848 14.7718C25.4695 16.0525 25.9847 16.7817 22.1193 20.9194C19.7099 23.4984 17.3408 24.506 15.9305 25.0173C15.6535 25.1178 15.4281 25.2677 15.4195 25.2734C14.9457 25.6167 14.8195 25.7861 14.8195 25.7861C6.49574 36.9649 9.64709 42.3746 11.7174 44.0948C13.4798 45.894 17.4284 47.2223 19.6744 44.9273C21.9205 42.6323 21.1335 40.1823 19.1423 39.2139C17.2977 38.317 16.2408 39.663 15.4195 40.3862C15.1287 40.6424 14.3082 40.6421 14.6502 39.6175C15.5521 36.9157 18.3901 36.6522 19.5865 37.0706C24.5806 38.8167 24.8815 44.3312 21.1323 47.5521C18.4561 49.8511 13.7106 50.3935 8.98231 46.5957C0.186131 39.5304 6.00739 27.7197 10.367 22.2002C10.5085 22.021 10.6427 21.8531 10.7806 21.6875C10.8838 21.4267 10.997 21.1674 11.108 20.9194C12.2756 18.3105 13.8559 16.3994 15.4614 15.0279C17.9039 12.9415 20.5004 12.4418 21.6043 11.9541C23.9231 10.9296 23.7199 8.62473 23.6656 7.60008ZM32.51 4.46612C31.8427 4.46614 31.3017 5.0071 31.3017 5.67439C31.3018 6.34159 31.8427 6.88264 32.51 6.88266C33.1772 6.88266 33.7181 6.34161 33.7182 5.67439C33.7182 5.00708 33.1773 4.46612 32.51 4.46612ZM28.281 2.04958C27.6137 2.0496 27.0727 2.59055 27.0727 3.25785C27.0729 3.92505 27.6138 4.4661 28.281 4.46612C28.9483 4.46612 29.4892 3.92506 29.4893 3.25785C29.4893 2.59054 28.9483 2.04958 28.281 2.04958Z" fill="url(#heroGrad)"/>
+            <defs>
+                <linearGradient id="heroGrad" x1="0" y1="0" x2="39" y2="50" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#01c968"/>
+                    <stop offset="1" stop-color="#005e3f"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+    <div class="hero-eyebrow">Programming Language</div>
+    <h1 class="title">GE<span class="title-accent">K</span>O</h1>
+    <p class="slogan">Simple, tiny — batteries included.</p>
+    <div class="hero-pills">
+        <span class="pill">Written in Rust</span>
+        <span class="pill">Cross-platform</span>
+        <span class="pill">40+ tools</span>
+        <span class="pill">MIT License</span>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="section">
+    <div class="section-header reveal">
+        <div class="section-header-line"></div>
+        <div class="section-header-text">Features</div>
+        <div class="section-header-line"></div>
+    </div>
+    <div class="features-grid reveal">
+        <div class="feature-card"><span class="feature-icon">⚡</span><div class="feature-title">Fast & Lightweight</div><div class="feature-desc">Minimal interpreter written in Rust. Starts in milliseconds, runs anywhere.</div></div>
+        <div class="feature-card"><span class="feature-icon">📐</span><div class="feature-title">Simple by Design</div><div class="feature-desc">Clean syntax with no surprises. Easy to learn, hard to misuse.</div></div>
+        <div class="feature-card"><span class="feature-icon">🧩</span><div class="feature-title">Modules System</div><div class="feature-desc">Clean module architecture for scalable projects of any size.</div></div>
+        <div class="feature-card"><span class="feature-icon">📦</span><div class="feature-title">Package Ecosystem</div><div class="feature-desc">Seamless dependency management with iggy. Install, update, done.</div></div>
+        <div class="feature-card"><span class="feature-icon">🧠</span><div class="feature-title">Modern Syntax</div><div class="feature-desc">Expressive, clean and developer-friendly language design.</div></div>
+        <div class="feature-card"><span class="feature-icon">🌍</span><div class="feature-title">Cross-Platform</div><div class="feature-desc">Runs consistently across Linux, macOS, Windows — and RaspberryPI.</div></div>
+    </div>
+</section>
+
+<!-- Tools -->
+<section class="section">
+    <div class="section-header reveal">
+        <div class="section-header-line"></div>
+        <div class="section-header-text">Tools</div>
+        <div class="section-header-line"></div>
+    </div>
+    <div class="tools-grid">
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🦖</div><div class="tool-badge">Package Manager</div></div><div class="tool-name">iggy</div><div class="tool-desc">Install, update, and resolve dependencies for your Geko projects with ease.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">✨</div><div class="tool-badge">Doc Generator</div></div><div class="tool-name">lume</div><div class="tool-desc">Auto-generate beautiful, structured documentation straight from your source code.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🌵</div><div class="tool-badge">Linter</div></div><div class="tool-name">aga</div><div class="tool-desc">Catch bugs early with powerful static analysis and linting.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🐾</div><div class="tool-badge">REPL</div></div><div class="tool-name">tegu</div><div class="tool-desc">Simple interactive REPL for quick prototyping and experimentation.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">⚡</div><div class="tool-badge">Formatter</div></div><div class="tool-name">gila</div><div class="tool-desc">Make your code beautiful and consistent in seconds.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🐲</div><div class="tool-badge">Test Runner</div></div><div class="tool-name">basil</div><div class="tool-desc">Write and run snapshot tests with ease.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🦕</div><div class="tool-badge">Toolchain Manager</div></div><div class="tool-name">rex</div><div class="tool-desc">Install, update, select and delete toolchain versions.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🐊</div><div class="tool-badge">2D Framework</div></div><div class="tool-name">vara</div><div class="tool-desc">Simple 2D framework for writing games in Geko.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🦷</div><div class="tool-badge">Security Scanner</div></div><div class="tool-name">fang</div><div class="tool-desc">Scan your code for possible unsafe edge cases before they bite.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🏜️</div><div class="tool-badge">Debugger</div></div><div class="tool-name">dune</div><div class="tool-desc">Create breakpoints and step through your application state.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🔥</div><div class="tool-badge">Web Framework</div></div><div class="tool-name">pyro</div><div class="tool-desc">Create web applications using Geko and WASM.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">⚔️</div><div class="tool-badge">Serialization</div></div><div class="tool-name">vex</div><div class="tool-desc">Easily serialize and deserialize Geko values to any format.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🧠</div><div class="tool-badge">Language Server</div></div><div class="tool-name">echo</div><div class="tool-desc">Simple but powerful LSP language server for IDE support.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🛰️</div><div class="tool-badge">CI/CD</div></div><div class="tool-name">orbit</div><div class="tool-desc">Automate testing and deployment with ease.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">❄️</div><div class="tool-badge">Profiler</div></div><div class="tool-name">frost</div><div class="tool-desc">Profile your code and find performance bottlenecks.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🧬</div><div class="tool-badge">Fuzzer</div></div><div class="tool-name">mamba</div><div class="tool-desc">Automatically generate random inputs and discover hidden edge-case bugs.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🌊</div><div class="tool-badge">HTTP Toolkit</div></div><div class="tool-name">tide</div><div class="tool-desc">Build REST APIs and web services with clean, structured patterns.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🕸️</div><div class="tool-badge">RPC Layer</div></div><div class="tool-name">gadget</div><div class="tool-desc">Type-safe networking and client/server code generation.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🌌</div><div class="tool-badge">Experimental</div></div><div class="tool-name">nova</div><div class="tool-desc">Enable nightly features and test next-gen Geko capabilities.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🌱</div><div class="tool-badge">NoStd Runtime</div></div><div class="tool-name">sprout</div><div class="tool-desc">Lightweight no-std Geko for embedded and minimal environments.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🌋</div><div class="tool-badge">Binary Packer</div></div><div class="tool-name">magma</div><div class="tool-desc">Bundle your Geko application into a single optimized standalone binary.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🧵</div><div class="tool-badge">Concurrency</div></div><div class="tool-name">loom</div><div class="tool-desc">Structured concurrency and async runtime for high-performance applications.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🧪</div><div class="tool-badge">Runtime Contracts</div></div><div class="tool-name">alchemy</div><div class="tool-desc">Enforce runtime type contracts and validate data structures.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🔮</div><div class="tool-badge">Code Insights</div></div><div class="tool-name">augur</div><div class="tool-desc">Analyze Geko projects and get actionable quality improvements.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🌈</div><div class="tool-badge">Visual Debugger</div></div><div class="tool-name">spectra</div><div class="tool-desc">Visualize data flows and runtime states with interactive graphs.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">💓</div><div class="tool-badge">Perf Monitor</div></div><div class="tool-name">pulse</div><div class="tool-desc">Track memory, CPU usage, and interpreter performance in real-time.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🗝️</div><div class="tool-badge">Encryption</div></div><div class="tool-name">cipher</div><div class="tool-desc">Secure sensitive data with built-in cryptography tools.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🌌</div><div class="tool-badge">Code Editor</div></div><div class="tool-name">aurora</div><div class="tool-desc">Simple code editor that runs directly in the browser.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🔒</div><div class="tool-badge">Obfuscator</div></div><div class="tool-name">veil</div><div class="tool-desc">Protect your source code by making it unreadable and mysterious.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">⚡</div><div class="tool-badge">Experimental VM</div></div><div class="tool-name">bolt</div><div class="tool-desc">Test and run next-gen code in a high-performance experimental VM.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🌠</div><div class="tool-badge">Sandbox</div></div><div class="tool-name">nebula</div><div class="tool-desc">Deploy and manage isolated Geko sandboxes on your server.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🎨</div><div class="tool-badge">UI Framework</div></div><div class="tool-name">kaleido</div><div class="tool-desc">Build vibrant, interactive Geko applications with ease.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🪄</div><div class="tool-badge">CLI Framework</div></div><div class="tool-name">glyph</div><div class="tool-desc">Design and build powerful CLI interfaces for your Geko projects.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">📚</div><div class="tool-badge">CLI Docs</div></div><div class="tool-name">scribe</div><div class="tool-desc">Navigate your project's documentation directly in the terminal.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🪞</div><div class="tool-badge">Dupe Finder</div></div><div class="tool-name">twin</div><div class="tool-desc">Detect duplicate code and repeated patterns effortlessly.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">💎</div><div class="tool-badge">Code Styler</div></div><div class="tool-name">refine</div><div class="tool-desc">Auto-fix code style and perform smart refactoring suggestions.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🛠️</div><div class="tool-badge">Templates</div></div><div class="tool-name">forge</div><div class="tool-desc">Create custom project templates and boilerplate for faster starts.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🌙</div><div class="tool-badge">Releases</div></div><div class="tool-name">moon</div><div class="tool-desc">Automatically build, test, and publish nightly versions.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🧩</div><div class="tool-badge">Faker</div></div><div class="tool-name">puzzle</div><div class="tool-desc">Test individual code sections with custom fake scenarios.</div></div></div>
+        <div class="tool-card"><div class="tool-inner"><div class="tool-head"><div class="tool-emoji">🪙</div><div class="tool-badge">Changelog</div></div><div class="tool-name">coin</div><div class="tool-desc">Track changes, generate changelogs, and streamline your release workflow.</div></div></div>
+    </div>
+</section>
+
+<footer>© 2026 Geko Language &nbsp;·&nbsp; Follow the direction 🧭</footer>
+
+<script>
+    // Feature section reveal
+    const revealObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // Tool cards – 3D rise, plays both ways on scroll
+    const COLS = 4;
+    const cards = document.querySelectorAll('.tool-card');
+
+    const toolObs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const card = entry.target;
+            const col = Array.from(cards).indexOf(card) % COLS;
+            if (entry.isIntersecting) {
+                card.classList.remove('visible');
+                void card.offsetWidth;
+                card.style.animationDelay = (col * 55) + 'ms';
+                card.classList.add('visible');
+            } else {
+                card.classList.remove('visible');
             }
-            .reveal.visible { opacity: 1; transform: none; }
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
 
-            /* Stagger delays – applied inline via JS */
-
-            /* ─── Navbar ─── */
-
-            header {
-                display: flex;
-                justify-content: center;
-                padding: 1rem 2rem;
-                background: rgba(12,14,18,0.85);
-                backdrop-filter: blur(12px);
-                border-bottom: 1px solid var(--border);
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                animation: fadeIn 0.6s ease both;
-            }
-
-            nav { display: flex; gap: 2rem; }
-            nav a {
-                font-weight: 600;
-                color: var(--muted);
-                text-decoration: none;
-                transition: color 0.2s;
-                position: relative;
-            }
-            nav a::after {
-                content: "";
-                position: absolute;
-                bottom: -2px; left: 0;
-                width: 0; height: 1px;
-                background: var(--geko-bright);
-                transition: width 0.25s;
-            }
-            nav a:hover { color: var(--geko-bright); }
-            nav a:hover::after { width: 100%; }
-
-            /* ─── Hero ─── */
-
-            .hero {
-                text-align: center;
-                padding: 7rem 2rem 4rem;
-                position: relative;
-            }
-            .hero-logo { animation: float 5s ease-in-out infinite, fadeUp 0.8s 0.1s both; }
-            .title {
-                font-size: 3rem;
-                font-weight: 800;
-                letter-spacing: 4px;
-                background: linear-gradient(135deg, var(--geko-bright), var(--geko));
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                animation: fadeUp 0.8s 0.25s both;
-            }
-            .slogan {
-                font-size: 1.1rem;
-                margin-top: 0.5rem;
-                color: var(--muted);
-                animation: fadeUp 0.8s 0.4s both;
-            }
-
-            /* ─── Section ─── */
-
-            .section {
-                padding: 4rem 2rem;
-                max-width: 1200px;
-                margin: auto;
-            }
-            .section h2 {
-                text-align: center;
-                margin-bottom: 3rem;
-                font-size: 1.8rem;
-                color: var(--geko-bright);
-            }
-            .section h2::after {
-                content: "";
-                display: block;
-                height: 2px; width: 40px;
-                background: var(--geko);
-                margin: 6px auto 0;
-                border-radius: 2px;
-            }
-
-            /* ─── Feature cards ─── */
-
-            .features-grid {
-                display: grid;
-                grid-template-columns: repeat(3,1fr);
-                gap: 1.5rem;
-            }
-            .feature-card {
-                background: var(--card);
-                padding: 1.8rem;
-                border-radius: 16px;
-                border: 1px solid var(--border);
-                transition: border-color 0.3s, background 0.3s, transform 0.3s;
-                position: relative;
-                overflow: hidden;
-            }
-            .feature-card::before {
-                content: "";
-                position: absolute;
-                top: 0; left: 0; right: 0;
-                height: 2px;
-                background: linear-gradient(90deg, transparent, var(--geko), transparent);
-                opacity: 0;
-                transition: opacity 0.3s;
-            }
-            .feature-card:hover { border-color: var(--geko); background: var(--card-hover); transform: translateY(-6px); }
-            .feature-card:hover::before { opacity: 1; }
-            .feature-header { display: flex; align-items: center; gap: 1rem; }
-            .feature-icon { font-size: 1.8rem; min-width: 40px; transition: transform 0.3s; }
-            .feature-card:hover .feature-icon { transform: scale(1.25) rotate(-5deg); }
-            .feature-title { font-size: 1.05rem; font-weight: 700; color: var(--text); }
-            .feature-divider { height: 1px; background: var(--border); margin: 1rem 0; }
-            .feature-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
-
-            /* ─── Tool cards ─── */
-
-            .tools-grid {
-                display: grid;
-                grid-template-columns: repeat(4,1fr);
-                gap: 1.5rem;
-            }
-            .tool-card {
-                background: var(--card);
-                border-radius: 20px;
-                border: 1px solid var(--border);
-                transition: border-color 0.3s, transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s;
-                position: relative;
-                overflow: hidden;
-                cursor: default;
-            }
-            .tool-card::after {
-                content: "";
-                position: absolute;
-                inset: 0;
-                border-radius: 20px;
-                background: radial-gradient(circle at 50% 0%, rgba(0,148,97,0.08) 0%, transparent 70%);
-                opacity: 0;
-                transition: opacity 0.4s;
-            }
-            .tool-card:hover {
-                border-color: var(--geko);
-                transform: translateY(-8px) scale(1.02);
-                box-shadow: 0 20px 40px rgba(0,148,97,0.15), 0 0 0 1px rgba(0,148,97,0.2);
-            }
-            .tool-card:hover::after { opacity: 1; }
-
-            .tool-inner {
-                padding: 2.2rem 2rem 2rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                gap: 0.6rem;
-                position: relative;
-                z-index: 1;
-            }
-            .tool-emoji {
-                font-size: 2.4rem;
-                margin-bottom: 0.4rem;
-                transition: transform 0.3s;
-            }
-            .tool-card:hover .tool-emoji { transform: scale(1.2) rotate(-6deg); }
-            .tool-name {
-                font-size: 1.15rem;
-                font-weight: 800;
-                letter-spacing: 1px;
-                background-color: white;
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-            }
-            .tool-badge {
-                display: inline-block;
-                font-size: 0.8rem;
-                font-weight: 600;
-                letter-spacing: 1.5px;
-                text-transform: uppercase;
-                color: var(--geko);
-                background: rgba(0,148,97,0.12);
-                border: 1px solid rgba(0,148,97,0.25);
-                padding: 2px 10px;
-                border-radius: 10px;
-                margin-bottom: 0.4rem;
-            }
-            .tool-divider { width: 100%; height: 1px; background: var(--border); margin: 0.5rem 0; }
-            .tool-desc { color: var(--muted); font-size: 0.88rem; line-height: 1.5; }
-
-            /* ─── Footer ─── */
-
-            footer {
-                text-align: center;
-                padding: 3rem;
-                font-size: 0.85rem;
-                color: var(--muted);
-                animation: fadeIn 1s ease both;
-            }
-
-            /* ─── Responsive ─── */
-
-            @media (max-width: 900px) {
-                .features-grid, .tools-grid { grid-template-columns: 1fr; }
-            }
-            @media (max-width: 600px) {
-                .features-grid, .tools-grid { grid-template-columns: 1fr; }
-            }
-        </style>
-    </head>
-
-    <body>
-        <header>
-            <nav>
-                <a href="#">News</a>
-                <a href="#">GitHub</a>
-                <a href="#">Docs</a>
-                <a href="#">Discord</a>
-                <a href="#">Telegram</a>
-            </nav>
-        </header>
-
-        <section class="hero">
-            <div class="hero-logo">
-                <svg width="128" height="160" viewBox="0 0 39 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M32.3915 16.2552C31.0312 16.7189 27.9857 17.4093 26.6864 16.4606C25.4968 15.5919 26.1698 14.3383 26.7706 13.6836L20.9814 16.666L23.5306 19.1517C27.4284 21.9978 31.754 19.7445 33.4296 18.2621C34.0463 19.1287 37.1671 20.5607 37.2638 19.8128C37.4939 18.0322 36.2256 17.8059 34.7146 17.327C36.1582 16.5453 37.1997 16.1707 37.2845 15.4569C37.498 13.6585 35.0745 15.0921 33.7895 16.0271C34.3378 14.9704 34.2306 12.4746 33.2243 12.4923C32.1114 12.5118 31.9324 14.8793 32.3915 16.2552Z" fill="url(#paint0_linear_18_463)"/>
-                    <path d="M34.6319 13.3462C34.6458 14.1324 34.0181 14.781 33.2301 14.7949C32.4421 14.8087 31.792 14.1826 31.7782 13.3964C31.7644 12.6102 32.392 11.9616 33.1801 11.9478C33.9681 11.9339 34.6181 12.56 34.6319 13.3462Z" fill="#009461"/>
-                    <path d="M38.1252 15.3215C38.139 16.1078 37.5114 16.7563 36.7234 16.7702C35.9354 16.784 35.2853 16.1579 35.2715 15.3717C35.2577 14.5855 35.8853 13.9369 36.6733 13.9231C37.4614 13.9092 38.1114 14.5353 38.1252 15.3215Z" fill="#009461"/>
-                    <path d="M38.708 19.2555C38.7218 20.0417 38.0942 20.6903 37.3061 20.7042C36.5181 20.718 35.8681 20.0919 35.8543 19.3057C35.8404 18.5195 36.4681 17.8709 37.2561 17.857C38.0441 17.8432 38.6941 18.4693 38.708 19.2555Z" fill="#009461"/>
-                    <path d="M18.426 5.99003C18.1005 7.38987 17.7179 10.4891 18.7917 11.6871C19.7748 12.784 22.0403 13.1054 22.6317 12.4422C23.2231 11.779 19.1573 17.3841 19.1573 17.3841L16.4293 15.096C13.208 11.502 15.0179 6.97292 16.3255 5.1576C15.4016 4.63054 13.665 1.66846 14.3995 1.49758C16.1482 1.09073 16.5 2.33001 17.1275 3.78565C17.761 2.27112 18.0297 1.19739 18.7315 1.04175C20.4995 0.649599 19.3153 3.20428 18.5133 4.57623C19.5099 3.92513 22.004 3.78239 22.087 4.78545C22.1787 5.89473 19.8409 6.30935 18.426 5.99003Z" fill="url(#paint1_linear_18_463)"/>
-                    <path d="M21.0966 3.47016C20.313 3.53496 19.7303 4.22424 19.7953 5.00971C19.8602 5.79519 20.5482 6.37941 21.3318 6.31461C22.1155 6.24981 22.6981 5.56053 22.6331 4.77505C22.5682 3.98958 21.8803 3.40536 21.0966 3.47016Z" fill="#009461"/>
-                    <path d="M18.7822 0.191701C17.9985 0.2565 17.4159 0.945782 17.4808 1.73125C17.5458 2.51673 18.2337 3.10095 19.0174 3.03615C19.801 2.97135 20.3837 2.28207 20.3187 1.4966C20.2538 0.711123 19.5658 0.126902 18.7822 0.191701Z" fill="#009461"/>
-                    <path d="M14.8097 0.00490944C14.026 0.0697087 13.4434 0.75899 13.5083 1.54446C13.5733 2.32994 14.2612 2.91416 15.0449 2.84936C15.8285 2.78456 16.4112 2.09528 16.3462 1.3098C16.2813 0.524332 15.5933 -0.0598898 14.8097 0.00490944Z" fill="#009461"/>
-                    <path d="M19.6972 29.2453C20.2617 27.9236 21.1785 24.9385 20.3299 23.5717C19.5529 22.3202 18.2524 22.8973 17.5544 23.4473L20.9626 17.8981L23.2502 20.6266C25.7959 24.7269 23.2245 28.8713 21.6205 30.431C22.4384 31.111 23.6323 34.3304 22.8793 34.3707C21.0864 34.4666 20.9559 33.1849 20.5917 31.6422C19.7039 33.0232 19.2523 34.0336 18.5341 34.0646C16.7248 34.1427 18.3361 31.8334 19.3649 30.6222C18.2701 31.0897 15.7892 30.7956 15.8824 29.7935C15.9853 28.6852 18.3596 28.6843 19.6972 29.2453Z" fill="url(#paint2_linear_18_463)"/>
-                    <path d="M16.6284 31.2612C17.4113 31.334 18.1051 30.7568 18.1781 29.972C18.251 29.1872 17.6754 28.4921 16.8924 28.4193C16.1095 28.3465 15.4156 28.9238 15.3427 29.7085C15.2698 30.4933 15.8454 31.1885 16.6284 31.2612Z" fill="#009461"/>
-                    <path d="M18.3361 34.8928C19.119 34.9656 19.8129 34.3884 19.8858 33.6036C19.9587 32.8188 19.3831 32.1237 18.6001 32.0509C17.8172 31.9782 17.1234 32.5554 17.0504 33.3401C16.9775 34.1249 17.5531 34.8201 18.3361 34.8928Z" fill="#009461"/>
-                    <path d="M22.2153 35.769C22.9982 35.8418 23.692 35.2645 23.765 34.4798C23.8379 33.695 23.2623 32.9998 22.4793 32.9271C21.6964 32.8543 21.0025 33.4315 20.9296 34.2163C20.8567 35.0011 21.4323 35.6963 22.2153 35.769Z" fill="#009461"/>
-                    <path d="M6.76923 19.9186C8.02793 19.2249 10.9065 18.0145 12.3512 18.7222C13.674 19.3703 13.2298 20.722 12.7523 21.4714L17.9332 17.5258L14.9898 15.5223C10.6557 13.399 6.78891 16.3716 5.39727 18.1234C4.63897 17.3775 1.31642 16.5112 1.35158 17.2645C1.43528 19.058 2.72354 19.0598 4.29491 19.268C3.00957 20.2893 2.04928 20.8397 2.0902 21.5574C2.19331 23.3654 4.33001 21.5315 5.43237 20.3868C5.07661 21.5229 5.61706 23.9619 6.60491 23.7691C7.69736 23.5559 7.46106 21.1935 6.76923 19.9186Z" fill="url(#paint3_linear_18_463)"/>
-                    <path d="M5.06998 23.1735C4.91937 22.4017 5.42437 21.6537 6.19793 21.5028C6.97149 21.3518 7.72068 21.8551 7.87129 22.6268C8.0219 23.3986 7.5169 24.1466 6.74334 24.2976C5.96978 24.4485 5.22059 23.9453 5.06998 23.1735Z" fill="#009461"/>
-                    <path d="M1.28592 21.8372C1.13531 21.0654 1.64031 20.3174 2.41388 20.1664C3.18744 20.0154 3.93663 20.5187 4.08724 21.2905C4.23785 22.0623 3.73285 22.8103 2.95929 22.9612C2.18573 23.1122 1.43654 22.6089 1.28592 21.8372Z" fill="#009461"/>
-                    <path d="M0.0265681 18.0649C-0.124043 17.2932 0.380958 16.5451 1.15452 16.3942C1.92808 16.2432 2.67727 16.7465 2.82788 17.5182C2.97849 18.29 2.47349 19.038 1.69993 19.189C0.926369 19.34 0.177179 18.8367 0.0265681 18.0649Z" fill="#009461"/>
-                    <g clip-path="url(#paint4_angular_18_463_clip_path)" data-figma-skip-parse="true">
-                        <g transform="matrix(-0.0420045 0.0169055 -0.0132573 -0.0325442 25.7272 20.4069)">
-                            <foreignObject x="-902.339" y="-902.339" width="1804.68" height="1804.68">
-                                <div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(0,146,97,1) 0deg,rgba(1,201,104,1) 138.33deg,rgba(0,99,92,1) 237.282deg,rgba(0,146,97,1) 360deg);height:100%;width:100%;opacity:1;"></div>
-                            </foreignObject>
-                        </g>
-                    </g>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M23.6656 7.60008C23.4079 2.73344 30.2896 -1.4067 33.4876 0.600599C36.2856 2.35714 35.0043 10.161 30.1082 11.9541C28.6479 12.381 26.3971 13.1325 25.9848 14.7718C25.4695 16.0525 25.9847 16.7817 22.1193 20.9194C19.7099 23.4984 17.3408 24.506 15.9305 25.0173C15.6535 25.1178 15.4281 25.2677 15.4195 25.2734C15.4195 25.2734 14.9457 25.6167 14.8195 25.7861C6.49574 36.9649 9.64709 42.3746 11.7174 44.0948C13.4798 45.894 17.4284 47.2223 19.6744 44.9273C21.9205 42.6323 21.1335 40.1823 19.1423 39.2139C17.2977 38.317 16.2408 39.663 15.4195 40.3862C15.1287 40.6424 14.3082 40.6421 14.6502 39.6175C15.5521 36.9157 18.3901 36.6522 19.5865 37.0706C24.5806 38.8167 24.8815 44.3312 21.1323 47.5521C18.4561 49.8511 13.7106 50.3935 8.98231 46.5957C0.186131 39.5304 6.00739 27.7197 10.367 22.2002C10.5085 22.021 10.6427 21.8531 10.7806 21.6875C10.8838 21.4267 10.997 21.1674 11.108 20.9194C12.2756 18.3105 13.8559 16.3994 15.4614 15.0279C17.9039 12.9415 20.5004 12.4418 21.6043 11.9541C23.9231 10.9296 23.7199 8.62473 23.6656 7.60008ZM32.51 4.46612C31.8427 4.46614 31.3017 5.0071 31.3017 5.67439C31.3018 6.34159 31.8427 6.88264 32.51 6.88266C33.1772 6.88266 33.7181 6.34161 33.7182 5.67439C33.7182 5.00708 33.1773 4.46612 32.51 4.46612ZM28.281 2.04958C27.6137 2.0496 27.0727 2.59055 27.0727 3.25785C27.0729 3.92505 27.6138 4.4661 28.281 4.46612C28.9483 4.46612 29.4892 3.92506 29.4893 3.25785C29.4893 2.59054 28.9483 2.04958 28.281 2.04958Z" data-figma-gradient-fill="{}" fill="url(#gekoGrad)"/>
-                    <defs>
-                        <linearGradient id="gekoGrad" x1="0" y1="0" x2="39" y2="50" gradientUnits="userSpaceOnUse">
-                            <stop offset="0" stop-color="#01c968"/>
-                            <stop offset="1" stop-color="#005e3f"/>
-                        </linearGradient>
-                        <clipPath id="paint4_angular_18_463_clip_path">
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M23.6656 7.60008C23.4079 2.73344 30.2896 -1.4067 33.4876 0.600599C36.2856 2.35714 35.0043 10.161 30.1082 11.9541C28.6479 12.381 26.3971 13.1325 25.9848 14.7718C25.4695 16.0525 25.9847 16.7817 22.1193 20.9194C19.7099 23.4984 17.3408 24.506 15.9305 25.0173C15.6535 25.1178 15.4281 25.2677 15.4195 25.2734C15.4195 25.2734 14.9457 25.6167 14.8195 25.7861C6.49574 36.9649 9.64709 42.3746 11.7174 44.0948C13.4798 45.894 17.4284 47.2223 19.6744 44.9273C21.9205 42.6323 21.1335 40.1823 19.1423 39.2139C17.2977 38.317 16.2408 39.663 15.4195 40.3862C15.1287 40.6424 14.3082 40.6421 14.6502 39.6175C15.5521 36.9157 18.3901 36.6522 19.5865 37.0706C24.5806 38.8167 24.8815 44.3312 21.1323 47.5521C18.4561 49.8511 13.7106 50.3935 8.98231 46.5957C0.186131 39.5304 6.00739 27.7197 10.367 22.2002C10.5085 22.021 10.6427 21.8531 10.7806 21.6875C10.8838 21.4267 10.997 21.1674 11.108 20.9194C12.2756 18.3105 13.8559 16.3994 15.4614 15.0279C17.9039 12.9415 20.5004 12.4418 21.6043 11.9541C23.9231 10.9296 23.7199 8.62473 23.6656 7.60008ZM32.51 4.46612C31.8427 4.46614 31.3017 5.0071 31.3017 5.67439C31.3018 6.34159 31.8427 6.88264 32.51 6.88266C33.1772 6.88266 33.7181 6.34161 33.7182 5.67439C33.7182 5.00708 33.1773 4.46612 32.51 4.46612ZM28.281 2.04958C27.6137 2.0496 27.0727 2.59055 27.0727 3.25785C27.0729 3.92505 27.6138 4.4661 28.281 4.46612C28.9483 4.46612 29.4892 3.92506 29.4893 3.25785C29.4893 2.59054 28.9483 2.04958 28.281 2.04958Z"/>
-                        </clipPath>
-                        <linearGradient id="paint0_linear_18_463" x1="19.3541" y1="0" x2="19.3541" y2="49.3629" gradientUnits="userSpaceOnUse"><stop offset="1" stop-color="#009461"/></linearGradient>
-                        <linearGradient id="paint1_linear_18_463" x1="19.3541" y1="0" x2="19.3541" y2="49.3629" gradientUnits="userSpaceOnUse"><stop offset="1" stop-color="#009461"/></linearGradient>
-                        <linearGradient id="paint2_linear_18_463" x1="19.3541" y1="0" x2="19.3541" y2="49.3629" gradientUnits="userSpaceOnUse"><stop offset="1" stop-color="#009461"/></linearGradient>
-                        <linearGradient id="paint3_linear_18_463" x1="19.3541" y1="0" x2="19.3541" y2="49.3629" gradientUnits="userSpaceOnUse"><stop offset="1" stop-color="#009461"/></linearGradient>
-                    </defs>
-                </svg>
-            </div>
-            <div class="title">Geko</div>
-            <div class="slogan">Simple, tiny programming language</div>
-            <div class="slogan">(batteries included)</div>
-        </section>
-
-        <section class="section">
-            <h2 class="reveal">Features</h2>
-            <div class="features-grid">
-                <div class="feature-card reveal" style="transition-delay:0.02s">
-                    <div class="feature-header"><div class="feature-icon">⚡</div><div class="feature-title">Fast & Lightweight</div></div>
-                    <div class="feature-divider"></div>
-                    <div class="feature-desc">Minimal interpreter written in Rust.</div>
-                </div>
-                <div class="feature-card reveal" style="transition-delay:0.04s">
-                    <div class="feature-header"><div class="feature-icon">📐</div><div class="feature-title">Simple by Design</div></div>
-                    <div class="feature-divider"></div>
-                    <div class="feature-desc">Simple and safe.</div>
-                </div>
-                <div class="feature-card reveal" style="transition-delay:0.06s">
-                    <div class="feature-header"><div class="feature-icon">🧩</div><div class="feature-title">Modules System</div></div>
-                    <div class="feature-divider"></div>
-                    <div class="feature-desc">Clean module architecture for scalable projects.</div>
-                </div>
-                <div class="feature-card reveal" style="transition-delay:0.08s">
-                    <div class="feature-header"><div class="feature-icon">📦</div><div class="feature-title">Package Ecosystem</div></div>
-                    <div class="feature-divider"></div>
-                    <div class="feature-desc">Seamless dependency management with iggy.</div>
-                </div>
-                <div class="feature-card reveal" style="transition-delay:0.10s">
-                    <div class="feature-header"><div class="feature-icon">🧠</div><div class="feature-title">Modern Syntax</div></div>
-                    <div class="feature-divider"></div>
-                    <div class="feature-desc">Expressive, clean and developer-friendly language design.</div>
-                </div>
-                <div class="feature-card reveal" style="transition-delay:0.12s">
-                    <div class="feature-header"><div class="feature-icon">🌍</div><div class="feature-title">Cross-Platform</div></div>
-                    <div class="feature-divider"></div>
-                    <div class="feature-desc">Runs consistently across multiple systems (RaspberryPI too!).</div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section">
-            <h2 class="reveal">Tools</h2>
-            <div class="tools-grid" id="toolsGrid">
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🦖</div><div class="tool-name">iggy</div><div class="tool-badge">Package Manager</div><div class="tool-divider"></div><div class="tool-desc">Install, update, and resolve dependencies for your Geko projects with ease.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">✨</div><div class="tool-name">lume</div><div class="tool-badge">Doc Generator</div><div class="tool-divider"></div><div class="tool-desc">Auto-generate beautiful, structured documentation straight from your source code.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🌵</div><div class="tool-name">aga</div><div class="tool-badge">Linter</div><div class="tool-divider"></div><div class="tool-desc">Catch bugs early with powerful linting.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🐾</div><div class="tool-name">tegu</div><div class="tool-badge">REPL</div><div class="tool-divider"></div><div class="tool-desc">Simple interactive REPL.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">⚡</div><div class="tool-name">gila</div><div class="tool-badge">Formatter</div><div class="tool-divider"></div><div class="tool-desc">Make your code beautiful in seconds.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🐲</div><div class="tool-name">basil</div><div class="tool-badge">Test runner</div><div class="tool-divider"></div><div class="tool-desc">Write snapshot tests ease.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🦕</div><div class="tool-name">rex</div><div class="tool-badge">Toolchain manager</div><div class="tool-divider"></div><div class="tool-desc">Install, update, select, delete toolchain.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🐊</div><div class="tool-name">vara</div><div class="tool-badge">2D framework</div><div class="tool-divider"></div><div class="tool-desc">Simple 2D framework for writing games.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🦷</div><div class="tool-name">fang</div><div class="tool-badge">Security scanner</div><div class="tool-divider"></div><div class="tool-desc">Scan your code for possible unsafe edge cases.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🏜️</div><div class="tool-name">dune</div><div class="tool-badge">Debugger</div><div class="tool-divider"></div><div class="tool-desc">Create breakpoints, debug your application.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🔥</div><div class="tool-name">pyro</div><div class="tool-badge">WEB framework</div><div class="tool-divider"></div><div class="tool-desc">Create web applications using geko and WASM.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">⚔️</div><div class="tool-name">vex</div><div class="tool-badge">Serialization</div><div class="tool-divider"></div><div class="tool-desc">Easily serialize and deserialize geko values.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🧠</div><div class="tool-name">echo</div><div class="tool-badge">Language server</div><div class="tool-divider"></div><div class="tool-desc">Simple, but powerfull language server.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🛰️</div><div class="tool-name">orbit</div><div class="tool-badge">CI/CD</div><div class="tool-divider"></div><div class="tool-desc">Automate testing and deployment ease.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">❄️</div><div class="tool-name">frost</div><div class="tool-badge">Profiler</div><div class="tool-divider"></div><div class="tool-desc">Profile your code ease.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🧬</div><div class="tool-name">mamba</div><div class="tool-badge">Fuzzer</div><div class="tool-divider"></div><div class="tool-desc">Automatically generate random inputs and discover hidden edge-case bugs.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🌊</div><div class="tool-name">tide</div><div class="tool-badge">HTTP Toolkit</div><div class="tool-divider"></div><div class="tool-desc">Build REST APIs and web services with clean, structured patterns.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🕸️</div><div class="tool-name">gadget</div><div class="tool-badge">RPC Layer</div><div class="tool-divider"></div><div class="tool-desc">Type-safe networking and client/server code generation.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🌌</div><div class="tool-name">nova</div><div class="tool-badge">Experimental Features</div><div class="tool-divider"></div><div class="tool-desc">Enable nightly features and test next-gen geko capabilities.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🌱</div><div class="tool-name">sprout</div><div class="tool-badge">NoStd Runtime</div><div class="tool-divider"></div><div class="tool-desc">Lightweight no-std version of geko for embedded and minimal environments.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🌋</div><div class="tool-name">magma</div><div class="tool-badge">Binary Packer</div><div class="tool-divider"></div><div class="tool-desc">Bundle your geko application into a single optimized standalone binary.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🧵</div><div class="tool-name">loom</div><div class="tool-badge">Concurrency Toolkit</div><div class="tool-divider"></div><div class="tool-desc">Structured concurrency, multi-interpreter and async runtime for high-performance geko applications.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🧪</div><div class="tool-name">alchemy</div><div class="tool-badge">Runtime Contracts</div><div class="tool-divider"></div><div class="tool-desc">Enforce runtime type contracts and validate data structures in dynamic geko applications.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🔮</div><div class="tool-name">augur</div><div class="tool-badge">Code Insights</div><div class="tool-divider"></div><div class="tool-desc">Analyze geko projects and provide actionable insights to improve quality and performance.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🌈</div><div class="tool-name">spectra</div><div class="tool-badge">Visual Debugger</div><div class="tool-divider"></div><div class="tool-desc">Intuitively visualize data flows and runtime states with colorful, interactive graphs.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">💓</div><div class="tool-name">pulse</div><div class="tool-badge">Performance Monitor</div><div class="tool-divider"></div><div class="tool-desc">Track memory, CPU usage, and interpreter performance in real-time.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🗝️</div><div class="tool-name">cipher</div><div class="tool-badge">Encryption Toolkit</div><div class="tool-divider"></div><div class="tool-desc">Secure sensitive data with built-in cryptography tools for geko applications.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🌌</div><div class="tool-name">aurora</div><div class="tool-badge">Code editor</div><div class="tool-divider"></div><div class="tool-desc">Simple code editor in browser.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🔒</div><div class="tool-name">veil</div><div class="tool-badge">Obfuscator</div><div class="tool-divider"></div><div class="tool-desc">Protect your source code by making it unreadable and mysterious.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">⚡</div><div class="tool-name">bolt</div><div class="tool-badge">Experimental VM</div><div class="tool-divider"></div><div class="tool-desc">Test and run next-gen code in a high-performance, experimental virtual machine.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🌠</div><div class="tool-name">nebula</div><div class="tool-badge">Sandbox Toolchain</div><div class="tool-divider"></div><div class="tool-desc">Deploy and manage isolated Geko sandboxes on your server with ease.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🎨</div><div class="tool-name">kaleido</div><div class="tool-badge">UI</div><div class="tool-divider"></div><div class="tool-desc">Build vibrant, interactive, and visually stunning Geko applications with ease.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🪄</div><div class="tool-name">glyph</div><div class="tool-badge">CLI framework</div><div class="tool-divider"></div><div class="tool-desc">Design and build powerful CLI interfaces for your Geko projects.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">📚</div><div class="tool-name">scribe</div><div class="tool-badge">CLI docs</div><div class="tool-divider"></div><div class="tool-desc">View and navigate your project's documentation directly in the terminal.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🪞</div><div class="tool-name">twin</div><div class="tool-badge">Duplication finder</div><div class="tool-divider"></div><div class="tool-desc">Detect duplicate code and repeated patterns effortlessly.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">💎</div><div class="tool-name">refine</div><div class="tool-badge">Code styler</div><div class="tool-divider"></div><div class="tool-desc">Auto-fix code style and perform smart refactoring.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🛠️</div><div class="tool-name">forge</div><div class="tool-badge">Templates</div><div class="tool-divider"></div><div class="tool-desc">Create custom project templates and boilerplate for faster project starts.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🌙</div><div class="tool-name">moon</div><div class="tool-badge">Releases</div><div class="tool-divider"></div><div class="tool-desc">Automatically build, test, and publish nightly versions, keeping your project up-to-date and stable.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🧩</div><div class="tool-name">puzzle</div><div class="tool-badge">Faker</div><div class="tool-divider"></div><div class="tool-desc">Test individual code sections with custom fake scenarios.</div></div></div>
-                <div class="tool-card"><div class="tool-inner"><div class="tool-emoji">🪙</div><div class="tool-name">coin</div><div class="tool-badge">Changelog generator</div><div class="tool-divider"></div><div class="tool-desc">Track changes, generate detailed changelogs, and streamline your project's release workflow.</div></div></div>
-            </div>
-        </section>
-
-        <footer>© 2026 Geko Language — Follow the direction 🧭</footer>
-
-        <script>
-            // ── Feature cards: simple transition reveal ──
-            const revealObs = new IntersectionObserver((entries) => {
-                entries.forEach(e => {
-                    if (e.isIntersecting) e.target.classList.add('visible');
-                });
-            }, { threshold: 0.12 });
-            document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
-
-            // ── Tool cards: unified 3D rise, repeats on scroll up/down ──
-            const COLS = 4;
-            const cards = document.querySelectorAll('.tool-card');
-
-            const toolObs = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    const card = entry.target;
-                    const idx = Array.from(cards).indexOf(card);
-                    const col = idx % COLS;
-
-                    if (entry.isIntersecting) {
-                        card.style.animationDelay = (col * 50) + 'ms';
-                        // Force reflow so animation restarts every time
-                        card.classList.remove('visible');
-                        void card.offsetWidth;
-                        card.classList.add('visible');
-                    } else {
-                        card.classList.remove('visible');
-                        card.style.animationDelay = '0ms';
-                    }
-                });
-            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-
-            cards.forEach(card => toolObs.observe(card));
-        </script>
-    </body>
+    cards.forEach(card => toolObs.observe(card));
+</script>
+</body>
 </html>
