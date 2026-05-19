@@ -1,0 +1,128 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background: #080808;
+    font-family: "Dongle", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+}
+
+canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+}
+
+.logo {
+    width: 200px;
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.badge {
+    font-family: "Outfit", sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+    color: #01c47c;
+    background: rgba(1, 155, 99, 0.1);
+    border: 1px solid rgba(1, 155, 99, 0.25);
+}
+
+.subtitle {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 28px;
+    max-width: 420px;
+    line-height: 1.05;
+}
+
+.subtitle strong {
+    color: #01c47c;
+    font-weight: 400;
+}
+
+.divider {
+    width: 100px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    font-family: "Dongle", sans-serif;
+    font-size: 28px;
+    width: 160px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s,
+        border-color 0.2s,
+        color 0.2s;
+}
+
+.btn-primary {
+    background: #019b63;
+    color: #000;
+    border: none;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
+.btn-primary:active {
+    transform: scale(0.97);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.38);
+    color: #fff;
+}
+.btn-secondary:active {
+    transform: scale(0.97);
+}
