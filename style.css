@@ -33,7 +33,7 @@ canvas {
 }
 
 .logo {
-    width: 180px;
+    width: 80px;
     margin-bottom: 20px;
     animation: float 4s ease-in-out infinite;
 }
@@ -171,3 +171,49 @@ canvas {
 .btn:active { transform: scale(0.97); }
 
 .btn-icon { font-size: 14px; }
+
+@media (max-width: 600px) {
+    .content {
+        padding: 1.5rem 1rem;
+    }
+
+    .subtitle {
+        font-size: 22px;
+        max-width: 280px;
+        margin-bottom: 28px;
+    }
+
+    .features {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        max-width: 100%;
+    }
+
+    .feat-card {
+        padding: 14px 14px 13px;
+        border-radius: 14px;
+    }
+
+    .feat-emoji { font-size: 18px; }
+    .feat-title { font-size: 19px; }
+    .feat-desc  { font-size: 11px; }
+
+    .buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin-top: 20px;
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+        max-width: 280px;
+    }
+}
+
+@media (max-width: 360px) {
+    .features {
+        grid-template-columns: 1fr;
+    }
+}
