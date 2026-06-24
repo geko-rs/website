@@ -33,7 +33,7 @@ canvas {
 }
 
 .logo {
-    width: 180px;
+    width: 170px;
     margin-bottom: 20px;
     animation: float 4s ease-in-out infinite;
 }
